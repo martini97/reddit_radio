@@ -1,0 +1,8 @@
+cmd.sh
+*.log
+out
+out*
+__pycache__
+*.pyc
+*.bak
+data
