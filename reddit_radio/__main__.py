@@ -13,7 +13,7 @@ def load_data(limit):
             subreddit, "top", time_filter="all", pages=5, limit=limit
         )
         for post in [*hot, *top]:
-            RedditPost.get_or_create(reddit_id=post["reddit"], defaults=post)
+            RedditPost.get_or_create(reddit_id=post["reddit_id"], defaults=post)
 
 
 @click.command()

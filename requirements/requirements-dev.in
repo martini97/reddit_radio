@@ -4,3 +4,9 @@ pip-tools
 flake8
 isort
 black
+pytest
+pytest-cov
+pytest-xdist
+Faker
+pytest-mock
+mixer

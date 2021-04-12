@@ -1,6 +1,6 @@
 from urllib.parse import parse_qs, urlparse
 
-from loguru import logger
+from reddit_radio.logging import logger
 
 
 def extract_video_id(url):

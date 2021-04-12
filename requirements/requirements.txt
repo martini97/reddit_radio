@@ -33,3 +33,5 @@ urllib3==1.26.4
     # via requests
 websocket-client==0.58.0
     # via praw
+xdg==5.0.1
+    # via -r requirements/requirements.in
