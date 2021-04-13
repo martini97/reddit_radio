@@ -9,14 +9,24 @@ config = configparser.ConfigParser()
 config_file = xdg.xdg_config_home() / PACKAGE_NAME / "config.ini"
 config.read(config_file)
 
-REDDIT_CONFIG = {
-    "client_id": config.get("REDDIT", "client_id"),
-    "client_secret": config.get("REDDIT", "client_secret"),
-    "username": config.get("REDDIT", "username"),
-    "user_agent": config.get("REDDIT", "user_agent"),
-}
+REDDIT_CONFIG = {}
 
-SUBREDDITS = config.get("REDDIT", "subreddits").split(",")
+if config.has_option("REDDIT", "client_id"):
+    REDDIT_CONFIG["client_id"] = config.get("REDDIT", "client_id")
+
+if config.has_option("REDDIT", "client_secret"):
+    REDDIT_CONFIG["client_secret"] = config.get("REDDIT", "client_secret")
+
+if config.has_option("REDDIT", "username"):
+    REDDIT_CONFIG["username"] = config.get("REDDIT", "username")
+
+if config.has_option("REDDIT", "user_agent"):
+    REDDIT_CONFIG["user_agent"] = config.get("REDDIT", "user_agent")
+
+if config.has_option("REDDIT", "subreddits"):
+    SUBREDDITS = config.get("REDDIT", "subreddits").split(",")
+else:
+    SUBREDDITS = []
 
 if config.has_option("DATABASE", "path"):
     DATABASE = config.get("DATABASE", "path")
