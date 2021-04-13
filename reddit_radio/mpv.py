@@ -1,9 +1,9 @@
 import subprocess
 
-from loguru import logger
-
+from reddit_radio.config import MPV
 from reddit_radio.database import RedditPost
 from reddit_radio.helpers import cache_file
+from reddit_radio.logging import logger
 
 
 def get_playlist(count):
@@ -19,7 +19,7 @@ def save_playlist(playlist):
 
 def build_cmd(file):
     return [
-        "mpv",
+        MPV,
         "--input-ipc-server=/tmp/mpvsocket",
         "--no-video",
         f"--playlist={file}",

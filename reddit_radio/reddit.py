@@ -1,10 +1,8 @@
 import praw
-from loguru import logger
 
 from reddit_radio import config, youtube
 from reddit_radio.helpers import fromtimestamp, safe_parse
-
-logger.add("client_{time}.log")
+from reddit_radio.logging import logger
 
 
 class Client:
