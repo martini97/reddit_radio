@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 import peewee
 
@@ -38,6 +39,8 @@ _tables = [RedditPost]
 
 
 def create_tables_if_needed():
+    Path(config.DATABASE).parent.mkdir(parents=True, exist_ok=True)
+
     if len(database.get_tables()) == len(_tables):
         return
 
