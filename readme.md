@@ -1,5 +1,8 @@
 # Reddit radio
 
+![workflow](https://github.com/martini97/reddit_radio/actions/workflows/ci.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/martini97/reddit_radio/branch/main/graph/badge.svg)](https://codecov.io/gh/martini97/reddit_radio)
+
 ## Config
 
 Before running you need to setup the config file, there is a sample in
