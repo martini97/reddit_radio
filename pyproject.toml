@@ -1,3 +1,46 @@
 [tool.isort]
 profile = "black"
 src_paths = ["reddit_radio", "tests"]
+
+[tool.poetry]
+name = "reddit_radio"
+version = "0.0.1"
+description = "Listen to music shared on reddit from your command line"
+authors = ["martini97 <martini97@protonmail.ch>"]
+maintainers = ["martini97 <martini97@protonmail.ch>"]
+readme = "readme.md"
+repository = "https://github.com/martini97/reddit_radio"
+license = "AGPL-3.0-or-later"
+keywords = [
+    "reddit",
+    "radio",
+    "music",
+    "cli",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^7.1.2"
+peewee = "^3.14.4"
+loguru = "^0.5.3"
+praw = "^7.2.0"
+xdg = "^5.0.1"
+python-mpv-jsonipc = "^1.1.13"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.0"
+isort = "^5.8.0"
+black = "^20.8b1"
+pytest = "^6.2.3"
+pytest-cov = "^2.11.1"
+pytest-xdist = "^2.2.1"
+Faker = "^8.1.0"
+pytest-mock = "^3.5.1"
+mixer = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+reddit_radio = "reddit_radio.cli:cli"

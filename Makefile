@@ -21,4 +21,3 @@ requirements: requirements/requirements.txt
 requirements-dev: requirements/requirements-dev.txt
 
 include Makefile.venv
-include requirements/Makefile
