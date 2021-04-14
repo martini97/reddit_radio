@@ -3,45 +3,37 @@ import os
 
 import xdg
 
+
+class Config:
+    def __init__(self, config_file):
+        self._config_file = config_file
+        self._config = configparser.ConfigParser()
+        self._config.read(self._config_file)
+
+    def get(self, section, option, fallback=None):
+        if self._config.has_option(section, option):
+            return self._config.get(section, option)
+        return fallback
+
+
 PACKAGE_NAME = "reddit_radio"
 
-config = configparser.ConfigParser()
-config_file = xdg.xdg_config_home() / PACKAGE_NAME / "config.ini"
-config.read(config_file)
+config = Config(xdg.xdg_config_home() / PACKAGE_NAME / "config.ini")
 
-REDDIT_CONFIG = {}
-
-if config.has_option("REDDIT", "client_id"):
-    REDDIT_CONFIG["client_id"] = config.get("REDDIT", "client_id")
-
-if config.has_option("REDDIT", "client_secret"):
-    REDDIT_CONFIG["client_secret"] = config.get("REDDIT", "client_secret")
-
-if config.has_option("REDDIT", "username"):
-    REDDIT_CONFIG["username"] = config.get("REDDIT", "username")
-
-if config.has_option("REDDIT", "user_agent"):
-    REDDIT_CONFIG["user_agent"] = config.get("REDDIT", "user_agent")
-
-if config.has_option("REDDIT", "subreddits"):
-    SUBREDDITS = config.get("REDDIT", "subreddits").split(",")
-else:
-    SUBREDDITS = []
-
-if config.has_option("DATABASE", "path"):
-    DATABASE = config.get("DATABASE", "path")
-else:
-    DATABASE = xdg.xdg_data_home() / PACKAGE_NAME / "database.db"
-
-if config.has_option("LOGS", "path"):
-    LOGS = config.get("LOGS", "path")
-else:
-    LOGS = xdg.xdg_cache_home() / PACKAGE_NAME / "{time}.log"
-
-if config.has_option("MPV", "path"):
-    MPV = config.get("MPV", "path")
-else:
-    MPV = "mpv"
+REDDIT_CONFIG = {
+    "client_id": config.get("REDDIT", "client_id", ""),
+    "client_secret": config.get("REDDIT", "client_secret", ""),
+    "username": config.get("REDDIT", "username", ""),
+    "user_agent": config.get("REDDIT", "user_agent", ""),
+}
+SUBREDDITS = (
+    subreddits.split(",") if (subreddits := config.get("REDDIT", "subreddits")) else []
+)
+DATABASE = config.get(
+    "DATABASE", "path", xdg.xdg_data_home() / PACKAGE_NAME / "database.db"
+)
+LOGS = config.get("LOGS", "path", xdg.xdg_cache_home() / PACKAGE_NAME / "{time}.log")
+MPV = config.get("MPV", "path", "mpv")
 
 # NOTE: override stuff for local testing, could not find a proper way to mock
 # this on the tests
