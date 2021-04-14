@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 
@@ -5,7 +6,7 @@ import pytest
 from xdg import xdg_cache_home
 
 from reddit_radio import config
-from reddit_radio.helpers import cache_file, fromtimestamp, safe_parse
+from reddit_radio.helpers import cache_file, fromtimestamp, is_binary, safe_parse
 
 
 def throws(_):
@@ -72,3 +73,65 @@ class TestCacheFile:
     def test_creates_parents(self, faker, mocked_mkdir):
         cache_file(faker.pystr())
         mocked_mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+
+class TestIsBinary:
+    @pytest.fixture
+    def mocked_isfile(self, mocker):
+        return mocker.patch("os.path.isfile")
+
+    @pytest.fixture
+    def mocked_access(self, mocker):
+        return mocker.patch("os.access")
+
+    @pytest.fixture
+    def mocked_which(self, mocker):
+        return mocker.patch("shutil.which")
+
+    def test_true_if_path_and_executable(self, mocked_isfile, mocked_access, faker):
+        mocked_isfile.return_value = True
+        mocked_access.return_value = True
+        filename = faker.file_path(depth=3)
+
+        assert is_binary(filename)
+
+        mocked_isfile.assert_called_once_with(filename)
+        mocked_access.assert_called_once_with(filename, os.X_OK)
+
+    def test_false_if_path_and_not_executable(
+        self, mocked_isfile, mocked_access, faker
+    ):
+        mocked_isfile.return_value = True
+        mocked_access.return_value = False
+        filename = faker.file_path(depth=3)
+
+        assert not is_binary(filename)
+
+        mocked_isfile.assert_called_once_with(filename)
+        mocked_access.assert_called_once_with(filename, os.X_OK)
+
+    def test_false_if_path_and_not_exist(self, mocked_isfile, mocked_access, faker):
+        mocked_isfile.return_value = False
+        mocked_access.return_value = True
+        filename = faker.file_path(depth=3)
+
+        assert not is_binary(filename)
+
+        assert not mocked_access.called
+        mocked_isfile.assert_called_once_with(filename)
+
+    def test_true_if_command_and_exist(self, mocked_which, faker):
+        mocked_which.return_value = True
+        filename = faker.file_name()
+
+        assert is_binary(filename)
+
+        mocked_which.assert_called_once_with(filename)
+
+    def test_false_if_command_and_not_exist(self, mocked_which, faker):
+        mocked_which.return_value = False
+        filename = faker.file_name()
+
+        assert not is_binary(filename)
+
+        mocked_which.assert_called_once_with(filename)
