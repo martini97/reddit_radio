@@ -61,6 +61,14 @@ class Client:
                 logger.info(f"{subreddit}: reached final page at [{page + 1}]")
                 break
 
+    def hot(self, subreddit, pages=10, limit=100):
+        return self.get_pages(subreddit, "hot", limit=limit, pages=pages)
+
+    def all(self, subreddit, pages=10, limit=100):
+        return self.get_pages(
+            subreddit, "top", time_filter="all", limit=limit, pages=pages
+        )
+
 
 reddit = praw.Reddit(**config.REDDIT_CONFIG)
 client = Client(reddit)

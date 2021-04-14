@@ -13,7 +13,7 @@ url: https://www.reddit.com/prefs/apps and create a new app. Then move the file 
 ## Usage
 
 ```sh
-python -m reddit_radio
+python -m reddit_radio load-data play
 ```
 
 ## Dependencies
