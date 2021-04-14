@@ -41,8 +41,6 @@ class Client:
             return []
 
     def get_pages(self, subreddit, method, pages=10, **params):
-        data = []
-
         for page in range(pages):
             posts = self.get_posts(subreddit, method, **params)
 
@@ -52,7 +50,9 @@ class Client:
                 logger.info(f"{subreddit}: reached final page at [{page + 1}]")
                 break
 
-            data += [*map(self.serialize, posts)]
+            for post in posts:
+                yield self.serialize(post)
+
             logger.info(f"{subreddit}: {page+1:02}/{pages}")
 
             if (latest := posts[len(posts) - 1]) and latest.fullname:
@@ -60,8 +60,6 @@ class Client:
             else:
                 logger.info(f"{subreddit}: reached final page at [{page + 1}]")
                 break
-
-        return data
 
 
 reddit = praw.Reddit(**config.REDDIT_CONFIG)
