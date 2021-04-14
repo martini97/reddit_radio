@@ -1,3 +1,5 @@
+import os
+import shutil
 from datetime import datetime
 
 from xdg import xdg_cache_home
@@ -28,3 +30,10 @@ def cache_file(filename):
     cache_dir = xdg_cache_home() / config.PACKAGE_NAME
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir / cache_filename
+
+
+def is_binary(filename):
+    fpath, fname = os.path.split(filename)
+    if not fpath:
+        return bool(shutil.which(fname))
+    return os.path.isfile(filename) and os.access(filename, os.X_OK)

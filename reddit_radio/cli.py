@@ -1,3 +1,4 @@
+import sys
 from itertools import chain
 from pathlib import Path
 
@@ -5,12 +6,16 @@ import click
 
 from reddit_radio import config, mpv
 from reddit_radio.database import RedditPost, create_tables_if_needed
+from reddit_radio.helpers import is_binary
+from reddit_radio.logging import logger
 from reddit_radio.reddit import client
 
 
 @click.group(chain=True)
 def cli():
-    pass
+    if not is_binary(config.MPV):
+        logger.error("mpv binary not found.")
+        sys.exit(1)
 
 
 @cli.command()
