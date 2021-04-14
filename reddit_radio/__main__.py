@@ -4,7 +4,6 @@ import click
 
 from reddit_radio import config
 from reddit_radio.database import RedditPost, create_tables_if_needed
-from reddit_radio.logging import logger
 from reddit_radio.mpv import play
 from reddit_radio.reddit import client
 

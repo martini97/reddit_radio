@@ -41,8 +41,6 @@ class Client:
             return []
 
     def get_pages(self, subreddit, method, pages=10, **params):
-        data = []
-
         for page in range(pages):
             posts = self.get_posts(subreddit, method, **params)
 
