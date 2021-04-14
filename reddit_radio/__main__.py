@@ -1,7 +1,10 @@
+from itertools import chain
+
 import click
 
 from reddit_radio import config
 from reddit_radio.database import RedditPost, create_tables_if_needed
+from reddit_radio.logging import logger
 from reddit_radio.mpv import play
 from reddit_radio.reddit import client
 
@@ -12,7 +15,7 @@ def load_data(limit):
         top = client.get_pages(
             subreddit, "top", time_filter="all", pages=5, limit=limit
         )
-        for post in [*hot, *top]:
+        for post in chain.from_iterable([hot, top]):
             RedditPost.get_or_create(reddit_id=post["reddit_id"], defaults=post)
 
 
