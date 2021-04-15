@@ -1,27 +1,24 @@
-import sys
 from itertools import chain
 from pathlib import Path
 
 import click
 
-from reddit_radio import config, mpv
+from reddit_radio import config
 from reddit_radio.database import RedditPost, create_tables_if_needed
-from reddit_radio.helpers import is_binary
-from reddit_radio.logging import logger
-from reddit_radio.reddit import client
+from reddit_radio.mpv import Client as MpvClient
+from reddit_radio.reddit import Client as RedditClient
 
 
 @click.group(chain=True)
 def cli():
-    if not is_binary(config.MPV):
-        logger.error("mpv binary not found.")
-        sys.exit(1)
+    pass
 
 
 @cli.command()
 @click.option("--count", default=100, help="Limit of tracks in the playlist")
 def play(count):
-    mpv.play(count)
+    mpv = MpvClient()
+    mpv.playlist(count)
 
 
 @cli.command()
@@ -29,11 +26,12 @@ def play(count):
 @click.option("--pages", default=5, help="Number of pages to search")
 def load_data(limit, pages):
     create_tables_if_needed()
+    reddit = RedditClient()
 
     for post in chain.from_iterable(
         fn(sub, limit=limit, pages=pages)
         for sub in config.SUBREDDITS
-        for fn in (client.hot, client.all)
+        for fn in (reddit.hot, reddit.all)
     ):
         RedditPost.get_or_create(reddit_id=post["reddit_id"], defaults=post)
 
