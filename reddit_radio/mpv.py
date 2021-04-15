@@ -1,7 +1,8 @@
 from click.exceptions import UsageError
 from python_mpv_jsonipc import MPV as MPVClient
 
-from reddit_radio.config import MPV as MPV_BIN, COOKIES_FILE
+from reddit_radio.config import COOKIES_FILE
+from reddit_radio.config import MPV as MPV_BIN
 from reddit_radio.database import RedditPost
 from reddit_radio.helpers import SingletonMeta, is_binary
 from reddit_radio.logging import logger
