@@ -27,9 +27,9 @@ def playlist(faker):
     return playlist
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mocked_is_binary(mocker):
-    return mocker.patch("reddit_radio.mpv.is_binary")
+    return mocker.patch("reddit_radio.mpv.is_binary", return_value=True)
 
 
 def test_check_for_binary(mocked_is_binary):
