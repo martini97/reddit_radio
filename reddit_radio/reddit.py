@@ -1,13 +1,13 @@
 import praw
 
 from reddit_radio import config, youtube
-from reddit_radio.helpers import fromtimestamp, safe_parse
+from reddit_radio.helpers import SingletonMeta, fromtimestamp, safe_parse
 from reddit_radio.logging import logger
 
 
-class Client:
-    def __init__(self, reddit):
-        self.reddit = reddit
+class Client(metaclass=SingletonMeta):
+    def __init__(self):
+        self._reddit = praw.Reddit(**config.REDDIT_CONFIG)
 
     @staticmethod
     def serialize(post):
@@ -18,12 +18,12 @@ class Client:
             "url": safe_parse(str, post.url, ""),
             "subreddit": safe_parse(str, post.subreddit.name, ""),
             "upvote_count": safe_parse(int, post.ups, 0),
-            "upvote_ratio": safe_parse(int, post.upvote_ratio, 0),
+            "upvote_ratio": safe_parse(float, post.upvote_ratio, 0),
             "submitted_at": fromtimestamp(post.created),
         }
 
     def get_posts(self, subreddit, method, **params):
-        sub = self.reddit.subreddit(subreddit)
+        sub = self._reddit.subreddit(subreddit)
 
         try:
             args = []
@@ -68,7 +68,3 @@ class Client:
         return self.get_pages(
             subreddit, "top", time_filter="all", limit=limit, pages=pages
         )
-
-
-reddit = praw.Reddit(**config.REDDIT_CONFIG)
-client = Client(reddit)

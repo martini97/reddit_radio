@@ -11,7 +11,7 @@ lint: pyclean
 	$(VENV)/flake8 reddit_radio tests
 
 test: pyclean
-	PYTHON_ENV=test $(VENV)/pytest -n 4 --cov=reddit_radio
+	PYTHON_ENV=test $(VENV)/pytest -n 4 --cov=reddit_radio --cov-report=term-missing
 
 install:
 	$(VENV)/pip install -r requirements/requirements.txt \
