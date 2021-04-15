@@ -23,19 +23,21 @@ jobs:
         poetry-version: ${{ matrix.poetry-version }}
     - name: Install dependencies
       run: |
+        # this fix the VIRTUAL_ENV KeyError issue, should remove eventually
+        poetry config experimental.new-installer false
         poetry install
     - name: black check
       run: |
-        black --check --diff reddit_radio tests
+        poetry run black --check --diff reddit_radio tests
     - name: isort check
       run: |
-        isort --check --diff .
+        poetry run isort --check --diff .
     - name: flake8 check
       run: |
-        flake8 reddit_radio tests
+        poetry run flake8 reddit_radio tests
     - name: tests
       run: |
-        pytest --cov=reddit_radio --cov-report=xml
+        poetry run pytest --cov=reddit_radio --cov-report=xml
     - name: coverage
       uses: codecov/codecov-action@v1
       with:
