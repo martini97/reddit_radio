@@ -2,9 +2,6 @@ import os
 import shutil
 from datetime import datetime
 
-from xdg import xdg_cache_home
-
-from reddit_radio import config
 from reddit_radio.logging import logger
 
 
@@ -24,16 +21,22 @@ def fromtimestamp(timestamp):
     return dt.isoformat()
 
 
-def cache_file(filename):
-    date_string = datetime.now().isoformat(timespec="seconds").replace(":", "-")
-    cache_filename = f"{date_string}-{filename}"
-    cache_dir = xdg_cache_home() / config.PACKAGE_NAME
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    return cache_dir / cache_filename
-
-
 def is_binary(filename):
     fpath, fname = os.path.split(filename)
     if not fpath:
         return bool(shutil.which(fname))
     return os.path.isfile(filename) and os.access(filename, os.X_OK)
+
+
+class SingletonMeta(type):
+    """
+    From https://refactoring.guru/design-patterns/singleton/python/example
+    """
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]

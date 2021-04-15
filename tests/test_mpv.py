@@ -1,9 +1,21 @@
 import pytest
+from click.exceptions import UsageError
 from mixer.backend.peewee import mixer
 
-from reddit_radio import mpv
 from reddit_radio.database import RedditPost
-from reddit_radio.mpv import build_cmd, get_playlist, play, save_playlist
+from reddit_radio.mpv import Client
+
+
+@pytest.fixture(autouse=True)
+def mocked_mpv(mocker):
+    return mocker.patch("reddit_radio.mpv.MPVClient")
+
+
+@pytest.fixture
+def mocked_client(mocker):
+    client = Client()
+    mocker.patch.object(client, "_client")
+    return client
 
 
 @pytest.fixture
@@ -15,84 +27,43 @@ def playlist(faker):
     return playlist
 
 
-@pytest.fixture(autouse=True)
-def mocked_subprocess(mocker):
-    return mocker.patch("reddit_radio.mpv.subprocess")
+@pytest.fixture
+def mocked_is_binary(mocker):
+    return mocker.patch("reddit_radio.mpv.is_binary")
 
 
-@pytest.fixture(autouse=True)
-def mocked_logger(mocker):
-    return mocker.patch("reddit_radio.mpv.logger")
+def test_check_for_binary(mocked_is_binary):
+    mocked_is_binary.return_value = False
+
+    with pytest.raises(UsageError):
+        Client()
 
 
-class TestGetPlaylist:
-    def test_returns_playlist(self, playlist):
-        expected = {p.url for p in playlist}
-
-        received = set(get_playlist(len(playlist)))
-        assert received == expected
+def test_loads_playlist(playlist, mocked_client):
+    mocked_client.load_playlist(len(playlist))
+    for track in playlist:
+        mocked_client._client.loadfile.assert_called_with(track.url, "append")
 
 
-class TestSavePlaylist:
-    def test_saves_playlist_to_file(self, playlist, temp_file, mocker):
-        mocker.patch("reddit_radio.mpv.cache_file", return_value=temp_file)
-        save_playlist(get_playlist(len(playlist)))
-        assert temp_file.read_text() == "\n".join(p.url for p in playlist)
+def test_play_with_playlist_not_started(mocked_client):
+    mocked_client._client.playlist_current_pos = -1
+    mocked_client.play()
+    mocked_client._client.playlist_play_index.assert_called_once_with(0)
 
 
-class TestBuildCmd:
-    def test_build_command(self, faker):
-        file = faker.file_name(extension="txt")
-
-        cmd = build_cmd(file)
-
-        assert cmd == [
-            "mpv",
-            "--input-ipc-server=/tmp/mpvsocket",
-            "--no-video",
-            f"--playlist={file}",
-        ]
-
-    def test_build_command_with_custom_mpv_path(self, faker, mocker):
-        mpv_path = faker.file_path(depth=3)
-        file = faker.file_name(extension="txt")
-        mocker.patch.object(mpv, "MPV", new=mpv_path)
-
-        cmd = build_cmd(file)
-
-        assert cmd == [
-            mpv_path,
-            "--input-ipc-server=/tmp/mpvsocket",
-            "--no-video",
-            f"--playlist={file}",
-        ]
+def test_play_with_playlist_started(mocked_client, faker):
+    current_pos = faker.pyint(min_value=1, max_value=10)
+    mocked_client._client.playlist_current_pos = current_pos
+    mocked_client.play()
+    mocked_client._client.playlist_play_index.assert_called_once_with(current_pos)
 
 
-class TestPlay:
-    @pytest.fixture(autouse=True)
-    def mocked_save_playlist(self, mocker):
-        return mocker.patch(
-            "reddit_radio.mpv.save_playlist", return_value="playlist.txt"
-        )
+def test_playlist(playlist, mocked_client, faker):
+    current_pos = faker.pyint(min_value=1, max_value=len(playlist))
+    mocked_client._client.playlist_current_pos = current_pos
 
-    @pytest.fixture(autouse=True)
-    def mocked_build_cmd(self, mocker):
-        return mocker.patch("reddit_radio.mpv.build_cmd", return_value="command")
+    mocked_client.playlist(len(playlist))
 
-    def test_log_playlist_path(self, playlist, mocked_logger):
-        play(len(playlist))
-        first_call = mocked_logger.info.call_args_list[0][0][0]
-        assert first_call == "Playing playlist [playlist.txt]"
-
-    def test_start_command_on_subprocess(self, playlist, mocked_subprocess, mocker):
-        play(len(playlist))
-        mocked_subprocess.Popen.assert_called_once_with(
-            "command", stdout=mocker.ANY, stderr=mocker.ANY
-        )
-
-    def test_log_pid(self, playlist, mocked_subprocess, mocked_logger, faker, mocker):
-        pid = faker.pyint()
-        mocked_subprocess.Popen.return_value = mocker.MagicMock(pid=pid)
-        play(len(playlist))
-        second_call = mocked_logger.info.call_args_list[1][0][0]
-        assert second_call == f"Started mpv with PID [{pid}]"
+    for track in playlist:
+        mocked_client._client.loadfile.assert_called_with(track.url, "append")
+    mocked_client._client.playlist_play_index.assert_called_once_with(current_pos)

@@ -1,12 +1,8 @@
 import os
-import re
-from pathlib import Path
 
 import pytest
-from xdg import xdg_cache_home
 
-from reddit_radio import config
-from reddit_radio.helpers import cache_file, fromtimestamp, is_binary, safe_parse
+from reddit_radio.helpers import fromtimestamp, is_binary, safe_parse
 
 
 def throws(_):
@@ -57,22 +53,6 @@ class TestFromtimestamp:
     def test_returns_none_if_failed(self, faker):
         value = faker.pystr()
         assert fromtimestamp(value) is None
-
-
-class TestCacheFile:
-    def test_returns_file(self, faker):
-        value = faker.pystr()
-        file = cache_file(value)
-        parent, filename = file.relative_to(xdg_cache_home()).parts
-        match = re.search(r"^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-(.*)", filename)
-        assert isinstance(file, Path)
-        assert parent == config.PACKAGE_NAME
-        assert match is not None
-        assert match.groups()[0] == value
-
-    def test_creates_parents(self, faker, mocked_mkdir):
-        cache_file(faker.pystr())
-        mocked_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 
 class TestIsBinary:
