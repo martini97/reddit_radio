@@ -17,8 +17,9 @@ class Config:
 
 
 PACKAGE_NAME = "reddit_radio"
+config_dir = xdg.xdg_config_home() / PACKAGE_NAME
 
-config = Config(xdg.xdg_config_home() / PACKAGE_NAME / "config.ini")
+config = Config(config_dir / "config.ini")
 
 REDDIT_CONFIG = {
     "client_id": config.get("REDDIT", "client_id", ""),
@@ -34,6 +35,11 @@ DATABASE = config.get(
 )
 LOGS = config.get("LOGS", "path", xdg.xdg_cache_home() / PACKAGE_NAME / "{time}.log")
 MPV = config.get("MPV", "path", "mpv")
+
+if (cookies_file := config_dir / "cookies.txt").exists():
+    COOKIES_FILE = cookies_file
+else:
+    COOKIES_FILE = None
 
 # NOTE: override stuff for local testing, could not find a proper way to mock
 # this on the tests

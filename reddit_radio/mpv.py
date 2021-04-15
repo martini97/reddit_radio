@@ -1,7 +1,7 @@
 from click.exceptions import UsageError
 from python_mpv_jsonipc import MPV as MPVClient
 
-from reddit_radio.config import MPV as MPV_BIN
+from reddit_radio.config import MPV as MPV_BIN, COOKIES_FILE
 from reddit_radio.database import RedditPost
 from reddit_radio.helpers import SingletonMeta, is_binary
 from reddit_radio.logging import logger
@@ -11,6 +11,12 @@ class Client(metaclass=SingletonMeta):
     def __init__(self):
         Client.check_mpv()
 
+        kwargs = {}
+        if COOKIES_FILE:
+            kwargs["cookies"] = True
+            kwargs["cookies_file"] = str(COOKIES_FILE)
+            kwargs["ytdl_raw_options"] = f"cookies={COOKIES_FILE}"
+
         self._client = MPVClient(
             input_terminal=True,
             ipc_socket="/tmp/mpvsocket",
@@ -18,6 +24,7 @@ class Client(metaclass=SingletonMeta):
             start_mpv=True,
             terminal=True,
             video=False,
+            **kwargs,
         )
 
     @staticmethod
