@@ -30,8 +30,8 @@ class RedditPost(BaseModel):
         return (
             cls.select(cls.url)
             .where(cls.youtube_id.is_null(False) & cls.url.is_null(False))
-            .limit(count)
             .order_by(peewee.fn.Random())
+            .limit(count)
         )
 
 

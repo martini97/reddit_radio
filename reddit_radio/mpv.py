@@ -1,37 +1,47 @@
-import subprocess
+from click.exceptions import UsageError
+from python_mpv_jsonipc import MPV as MPVClient
 
-from reddit_radio.config import MPV
+from reddit_radio.config import COOKIES_FILE
+from reddit_radio.config import MPV as MPV_BIN
 from reddit_radio.database import RedditPost
-from reddit_radio.helpers import cache_file
+from reddit_radio.helpers import SingletonMeta, is_binary
 from reddit_radio.logging import logger
 
 
-def get_playlist(count):
-    playlist = [u.url for u in RedditPost.playlist(count)]
-    return playlist
+class Client(metaclass=SingletonMeta):
+    def __init__(self):
+        Client.check_mpv()
 
+        kwargs = {}
+        if COOKIES_FILE:
+            kwargs["cookies"] = True
+            kwargs["cookies_file"] = str(COOKIES_FILE)
+            kwargs["ytdl_raw_options"] = f"cookies={COOKIES_FILE}"
 
-def save_playlist(playlist):
-    file = cache_file("reddit-radio-playlist.txt")
-    file.write_text("\n".join(playlist))
-    return str(file)
+        self._client = MPVClient(
+            input_terminal=True,
+            ipc_socket="/tmp/mpvsocket",
+            mpv_location=MPV_BIN,
+            start_mpv=True,
+            terminal=True,
+            video=False,
+            **kwargs,
+        )
 
+    @staticmethod
+    def check_mpv():
+        if not is_binary(MPV_BIN):
+            logger.error("mpv binary not found.")
+            raise UsageError("mpv binary not found.")
 
-def build_cmd(file):
-    return [
-        MPV,
-        "--input-ipc-server=/tmp/mpvsocket",
-        "--no-video",
-        f"--playlist={file}",
-    ]
+    def load_playlist(self, count):
+        for track in RedditPost.playlist(count):
+            self._client.loadfile(track.url, "append")
 
+    def play(self):
+        index = index if (index := self._client.playlist_current_pos) >= 0 else 0
+        self._client.playlist_play_index(index)
 
-def play(count):
-    playlist = get_playlist(count)
-    file = save_playlist(playlist)
-    logger.info(f"Playing playlist [{file}]")
-    process = subprocess.Popen(
-        build_cmd(file), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
-    logger.info(f"Started mpv with PID [{process.pid}]")
-    return process.pid
+    def playlist(self, count):
+        self.load_playlist(count)
+        self.play()

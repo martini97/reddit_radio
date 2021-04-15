@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := lint
+CMD = poetry run
 .PHONY: pyclean lint test install requirements requirements-dev
 
 pyclean:
@@ -6,19 +7,15 @@ pyclean:
 	find . -type d -name "__pycache__" -delete
 
 lint: pyclean
-	$(VENV)/black --check --diff reddit_radio tests
-	$(VENV)/isort --check --diff .
-	$(VENV)/flake8 reddit_radio tests
+	$(CMD) black --check --diff reddit_radio tests
+	$(CMD) isort --check --diff .
+	$(CMD) flake8 reddit_radio tests
 
 test: pyclean
-	PYTHON_ENV=test $(VENV)/pytest -n 4 --cov=reddit_radio
+	PYTHON_ENV=test $(CMD) pytest -n 4 --cov=reddit_radio --cov-report=term-missing
 
 install:
-	$(VENV)/pip install -r requirements/requirements.txt \
-		-r requirements/requirements-dev.txt
+	poetry install
 
 requirements: requirements/requirements.txt
 requirements-dev: requirements/requirements-dev.txt
-
-include Makefile.venv
-include requirements/Makefile

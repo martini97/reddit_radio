@@ -32,3 +32,12 @@ class TestRedditPost:
 
         assert len(playlist) == len(in_playlist)
         assert {p.url for p in in_playlist} == {p.url for p in playlist}
+
+    def test_playlist_query_random(self, faker):
+        count = faker.pyint(min_value=10, max_value=25)
+        mixer.cycle(count).blend(RedditPost, youtube_id=faker.pystr, url=faker.url)
+
+        playlist_a = RedditPost.playlist(count=count)
+        playlist_b = RedditPost.playlist(count=count)
+
+        assert [p.url for p in playlist_a] != [p.url for p in playlist_b]
