@@ -10,6 +10,14 @@ def extract_video_id(url):
     query = urlparse(url)
     hostname = query.hostname or ""
     video_id = None
+    allowlist = [
+        "youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+        "www.youtube.com",
+        "www.m.youtube.com",
+        "www.music.youtube.com",
+    ]
 
     if "youtu" not in hostname:
         return None
@@ -17,7 +25,7 @@ def extract_video_id(url):
     if hostname == "youtu.be":
         return query.path[1:]
 
-    if "youtube.com" in hostname:
+    if hostname in allowlist:
         if query.path == "/watch":
             video_id = parse_qs(query.query)["v"][0]
         elif query.path[:7] == "/embed/":
@@ -28,6 +36,8 @@ def extract_video_id(url):
             video_id = parse_qs(parse_qs(query.query)["u"][0].split("?")[1])["v"][0]
         elif query.path == "/playlist":
             video_id = parse_qs(query.query)["list"][0]
+        elif query.path[:8] == "/shorts/":
+            video_id = query.path.split("/")[2]
 
     if not video_id:
         logger.warning(f"Failed to get youtube id from [{url}]")
