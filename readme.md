@@ -2,6 +2,8 @@
 
 ![workflow](https://github.com/martini97/reddit_radio/actions/workflows/ci.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/martini97/reddit_radio/branch/main/graph/badge.svg)](https://codecov.io/gh/martini97/reddit_radio)
+[![CodeQL](https://github.com/martini97/reddit_radio/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/martini97/reddit_radio/actions?query=workflow%3ACodeQL)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 ## Install
 
