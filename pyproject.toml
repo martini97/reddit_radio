@@ -4,7 +4,7 @@ src_paths = ["reddit_radio", "tests"]
 
 [tool.poetry]
 name = "reddit_radio"
-version = "0.0.1"
+version = "0.0.2"
 description = "Listen to music shared on reddit from your command line"
 authors = ["martini97 <martini97@protonmail.ch>"]
 maintainers = ["martini97 <martini97@protonmail.ch>"]
