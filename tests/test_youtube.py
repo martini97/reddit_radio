@@ -24,6 +24,7 @@ youtube_urls = [
     "www.youtube.com/playlist?list=0zM3nApSvMg",
     "https://music.youtube.com/watch?v=0zM3nApSvMg&feature=share",
     "https://m.youtube.com/watch?v=0zM3nApSvMg",
+    "https://youtube.com/shorts/0zM3nApSvMg",
 ]
 
 

@@ -36,6 +36,8 @@ def extract_video_id(url):
             video_id = parse_qs(parse_qs(query.query)["u"][0].split("?")[1])["v"][0]
         elif query.path == "/playlist":
             video_id = parse_qs(query.query)["list"][0]
+        elif query.path[:8] == "/shorts/":
+            video_id = query.path.split("/")[2]
 
     if not video_id:
         logger.warning(f"Failed to get youtube id from [{url}]")
